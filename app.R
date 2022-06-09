@@ -109,6 +109,7 @@ server <- function(input, output) {
     refreshPlot0()
     wd=WD()
     sort=SORT()
+    
     print(c(wd,sort))
     td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = 1000,include_rts = T)
     
@@ -178,18 +179,19 @@ server <- function(input, output) {
     
     TDPC <-
       TDPS %>%
-      mutate(Purl=factor(Purl,levels = unique(Purl))) %>%
-      group_by(Purl) %>%
+      distinct(status_id,.keep_all = T) %>%
+      # mutate(Purl=factor(Purl,levels = unique(Purl))) %>%
+      group_by(RID) %>%
       summarise(n=n(),nf=max(favorite_count),nr=max(retweet_count)) %>%
       ungroup() %>%
       mutate(Rank=frank(-n,ties.method = "max")) %>%
-      arrange(Rank,desc(nf),Purl) %>%
+      arrange(Rank,desc(nf),desc(nr),RID) %>%
       filter(nf>0 | nr>0) %>%
-      mutate(Purl=as.character(Purl)) %>%
-      mutate(Ps=ifelse(grepl("img/",Purl),regexpr("g/",Purl),regexpr("[ab]/",Purl))) %>%
-      mutate(Pl=nchar(Purl)) %>%
-      mutate(Pjpg=substr(Purl,Ps+2,Pl)) %>%
-      left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(Purl,text,JTime,RTime)) %>%
+      # mutate(Purl=as.character(Purl)) %>%
+      # mutate(Ps=ifelse(grepl("img/",Purl),regexpr("g/",Purl),regexpr("[ab]/",Purl))) %>%
+      # mutate(Pl=nchar(Purl)) %>%
+      # mutate(Pjpg=substr(Purl,Ps+2,Pl)) %>%
+      left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
       filter(!grepl("おはよう",text)) %>%
       mutate(JTime=as.POSIXct(JTime))
     
@@ -197,7 +199,8 @@ server <- function(input, output) {
       TDPC <-
         TDPC %>%
         arrange(Rank) %>%
-        filter(Rank<=20)
+        filter(Rank<=20) %>%
+        filter(1:n()<=20)
     }
     
     if(sort==2){
