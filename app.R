@@ -48,19 +48,24 @@ ui <- fluidPage(
   # Sidebar with a slider input for number of bins 
   fluidRow(
     sidebarPanel(
-      column(2,
-             textInput("wd",
-                       NULL,
-                       "大雨")),
-      column(2,
-             actionButton("button",
-                          "検索ワードツイートの抽出開始")),
-      column(1,h4("画像順序")),
-      radioButtons("sort",
-                   NULL,
-                   c("出現頻度"=1,"最新投稿"=2),
-                   1,
-                   T),
+      h4(strong(column(1,"検索ワード"))),
+      h4(column(2,
+             textInput(inputId = "wd",
+                          label = NULL,
+                          value = "大雨"))),
+      # column(1,h4("画像順序"),
+      #        offset = 1),
+      h4(column(2,
+                radioButtons(inputId = "sort",
+                             label = "画像順序",
+                             choices = c("出現頻度"=1,"最新投稿"=2),
+                             selected = 1,
+                             inline = T))),
+      h4(column(2,
+                actionButton(inputId = "button",
+                             label = "ツイートの抽出開始&更新"))),
+      br(),
+      br(),
       width = 12
     ),
     
@@ -92,7 +97,7 @@ server <- function(input, output) {
   WD <- eventReactive(input$button,{
     return(input$wd)
   })
-  
+
   SORT <- eventReactive(input$button,{
     return(input$sort)
   })
@@ -104,9 +109,9 @@ server <- function(input, output) {
     refreshPlot0()
     wd=WD()
     sort=SORT()
-    
+    print(c(wd,sort))
     td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = 1000,include_rts = T)
-   
+    
     tds <-
       td %>%
       arrange(desc(status_id)) %>%
