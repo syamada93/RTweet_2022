@@ -185,7 +185,7 @@ server <- function(input, output) {
       mutate(Pl=nchar(Purl)) %>%
       mutate(Pjpg=substr(Purl,Ps+2,Pl)) %>%
       left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(Purl,text,JTime,RTime)) %>%
-      filter(!grepl("おはよう|おつかれ",text)) %>%
+      filter(!grepl("おはよう",text)) %>%
       mutate(JTime=as.POSIXct(JTime))
     
     if(sort==1){
