@@ -232,7 +232,7 @@ server <- function(input, output) {
       JPG <-
         image_read(TDPC$Purl[which(TDPC$RID==id)])
       GIF <-
-        image_append(JPG, stack = T)
+        image_append(image_scale(JPG), stack = T)
       if(length(JPG)>2){
         GIF12 <-
           image_append(JPG[1:2], stack = T)
