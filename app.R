@@ -229,8 +229,11 @@ server <- function(input, output) {
       XY[i,-1] = c(floor((i-1)/r),floor((i-1)/r)+1,ro,ro-1)
       
       JPG <-
-        image_scale(
-          image_read(TDPC$Purl[which(TDPC$RID==id)]))
+        try(image_scale(
+          image_read(TDPC$Purl[which(TDPC$RID==id)])))
+      if(sum(class(JPG)=="try-error"))
+        next
+      
       GIF <-
         image_append(JPG, stack = T)
       if(length(JPG)>2){
