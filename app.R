@@ -210,9 +210,8 @@ server <- function(input, output) {
         filter(1:n()<=20)
     }
     
-    path="Photo/"
-    
-    n=nrow(TDPC)
+    XY=data.frame(RID=unique(TDPC$RID),sx=0,lx=0,sy=0,ly=0)
+    n=nrow(XY)
     r=round(sqrt(n))
     co=ceiling(n/r)
     ro=r
@@ -222,17 +221,31 @@ server <- function(input, output) {
       theme(axis.title = element_blank()) +
       theme(axis.text = element_blank()) +
       theme(axis.ticks = element_blank())
-    i=1
-    XY=data.frame(Purl=TDPC$Purl,sx=0,lx=0,sy=0,ly=0)
-    for (i in 1:n) {
+    
+    ID=XY$RID
+    id=ID[1]
+    i=0
+    for (id in ID) {
+      i=i+1
       XY[i,-1] = c(floor((i-1)/r),floor((i-1)/r)+1,ro,ro-1)
       
       JPG <-
-        image_read(TDPC$Purl[i])
+        image_read(TDPC$Purl[which(TDPC$RID==id)])
+      GIF <-
+        image_append(JPG, stack = T)
+      if(length(JPG)>2){
+        GIF12 <-
+          image_append(JPG[1:2], stack = T)
+        GIF34 <-
+          image_append(JPG[-(1:2)], stack = T)
+        GIF <-
+          image_append(c(GIF12,GIF34), stack = F)
+      }
+      
       
       p <-
         p +
-        annotation_raster(JPG,XY$sx[i],XY$lx[i],XY$sy[i],XY$ly[i])
+        annotation_raster(GIF,XY$sx[i],XY$lx[i],XY$sy[i],XY$ly[i])
       # plot(p)
       ro=ro-1
       if(ro==0)
