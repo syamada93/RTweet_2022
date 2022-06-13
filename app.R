@@ -199,8 +199,7 @@ server <- function(input, output) {
       TDPC <-
         TDPC %>%
         arrange(Rank) %>%
-        filter(Rank<=20) %>%
-        filter(1:n()<=20)
+        filter(Rank<=20)
     }
     
     if(sort==2){
@@ -230,16 +229,17 @@ server <- function(input, output) {
       XY[i,-1] = c(floor((i-1)/r),floor((i-1)/r)+1,ro,ro-1)
       
       JPG <-
-        image_read(TDPC$Purl[which(TDPC$RID==id)])
+        image_scale(
+          image_read(TDPC$Purl[which(TDPC$RID==id)]))
       GIF <-
-        image_append(image_scale(JPG), stack = T)
+        image_append(JPG, stack = T)
       if(length(JPG)>2){
         GIF12 <-
           image_append(JPG[1:2], stack = T)
         GIF34 <-
           image_append(JPG[-(1:2)], stack = T)
         GIF <-
-          image_append(c(GIF12,GIF34), stack = F)
+          image_append(image_scale(c(GIF12,GIF34)), stack = F)
       }
       
       
