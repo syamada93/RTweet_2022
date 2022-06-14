@@ -196,20 +196,21 @@ server <- function(input, output) {
       mutate(JTime=as.POSIXct(JTime))
     
     if(sort==1){
-      TDPC <-
+      TDPC0 <-
         TDPC %>%
         arrange(Rank) %>%
         filter(Rank<=20)
     }
     
     if(sort==2){
-      TDPC <-
+      TDPC0 <-
         TDPC %>%
         arrange(desc(RTime)) %>%
-        filter(1:n()<=20)
+        filter(RID %in% unique(RID)[1:20])
+        # filter(1:n()<=20)
     }
     
-    XY=data.frame(RID=unique(TDPC$RID),sx=0,lx=0,sy=0,ly=0)
+    XY=data.frame(RID=unique(TDPC0$RID),sx=0,lx=0,sy=0,ly=0)
     n=nrow(XY)
     r=round(sqrt(n))
     co=ceiling(n/r)
@@ -235,7 +236,7 @@ server <- function(input, output) {
         next
       
       GIF <-
-        image_append(JPG, stack = T)
+        image_append(JPG, stack = F)
       if(length(JPG)>2){
         GIF12 <-
           image_append(JPG[1:2], stack = T)
@@ -259,13 +260,18 @@ server <- function(input, output) {
       plot(p)
     })
     
+    TDPCS <-
+      TDPC0 %>%
+      distinct(RID,.keep_all = T) %>%
+      left_join(XY)
+    
     output$info <- renderPrint({
       if(!is.null(input$plot_hover)){
         hover=input$plot_hover
         hover$x=hover$x*co
         hover$y=hover$y*r
         w=which(hover$x>XY$sx&hover$x<XY$lx&hover$y<XY$sy&hover$y>XY$ly)
-        paste(TDPC$RTime[w],paste0(TDPC$n[w],"リツイート"),paste0(TDPC$nf[w],"いいね"),TDPC$text[w])
+        paste(TDPCS$RTime[w],paste0(TDPCS$n[w],"ツイート"),paste0(TDPCS$nf[w],"いいね"),TDPS$text[w])
       }
     })
   })
