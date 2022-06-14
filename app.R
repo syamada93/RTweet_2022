@@ -179,12 +179,12 @@ server <- function(input, output) {
       group_by(RID) %>%
       summarise(n=n(),nf=max(favorite_count),nr=max(retweet_count)) %>%
       ungroup() %>%
-      arrange(Rank,desc(nf),desc(nr),RID) %>%
       left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
       filter(nf>0 | nr>0) %>%
       filter(!grepl("おは",text)) %>%
       filter(!grepl("^@",text)) %>%
       mutate(Rank=frank(-n,ties.method = "max")) %>%
+      arrange(Rank,desc(nf),desc(nr),RID) %>%
       ungroup() 
     
     if(sort==1){
