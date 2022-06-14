@@ -193,6 +193,7 @@ server <- function(input, output) {
       # mutate(Pjpg=substr(Purl,Ps+2,Pl)) %>%
       left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
       filter(!grepl("おは",text)) %>%
+      filter(!grepl("^@",text)) %>%
       mutate(JTime=as.POSIXct(JTime))
     
     if(sort==1){
