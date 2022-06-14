@@ -214,10 +214,9 @@ server <- function(input, output) {
       theme(axis.text  = element_blank()) +
       theme(axis.ticks = element_blank())
     
-    id=ID[1]
-    i=0
-    for (id in ID) {
-      i=i+1
+    i=1
+    for (i in 1:n) {
+      id=ID[i]
       XY[i,-1] = c(floor((i-1)/ro),floor((i-1)/ro)+1,r,r-1)
       
       (JPG <-
