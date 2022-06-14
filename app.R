@@ -192,7 +192,7 @@ server <- function(input, output) {
       # mutate(Pl=nchar(Purl)) %>%
       # mutate(Pjpg=substr(Purl,Ps+2,Pl)) %>%
       left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
-      filter(!grepl("おはよう",text)) %>%
+      filter(!grepl("おは",text)) %>%
       mutate(JTime=as.POSIXct(JTime))
     
     if(sort==1){
@@ -271,7 +271,7 @@ server <- function(input, output) {
         hover$x=hover$x*co
         hover$y=hover$y*r
         w=which(hover$x>XY$sx&hover$x<XY$lx&hover$y<XY$sy&hover$y>XY$ly)
-        paste(TDPCS$RTime[w],paste0(TDPCS$n[w],"ツイート"),paste0(TDPCS$nf[w],"いいね"),TDPS$text[w])
+        paste(TDPCS$RTime[w],paste0(TDPCS$n[w],"ツイート"),paste0(TDPCS$nf[w],"いいね"),TDPCS$text[w])
       }
     })
   })
