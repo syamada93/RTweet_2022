@@ -39,11 +39,10 @@ if(!require(magick)){
 
 Unzip <- function(...) rbind(data.frame(), ...)
 
-# Define UI for application that draws a histogram
 #UI####
 ui <- fluidPage(
   # Application title
-  titlePanel("検索ワードのリツイート数の多い画像"),
+  titlePanel("検索ワードによる画像付きツイートの抽出"),
   
   # Sidebar with a slider input for number of bins 
   fluidRow(
@@ -87,12 +86,8 @@ ui <- fluidPage(
 )
 
 #SERVER####
-# Define server logic required to draw a histogram
 server <- function(input, output) {
   refreshPlot0 <- reactiveTimer(intervalMs = 60000)
-  
-  wd="大雨"
-  sort=2
   
   WD <- eventReactive(input$button,{
     return(input$wd)
@@ -102,15 +97,16 @@ server <- function(input, output) {
     return(input$sort)
   })
   
+  wd="大雨"
+  sort=2
+  
   observe({
-    output$TM <- renderText({
-      as.character(Sys.time())
-    })
     refreshPlot0()
     wd=WD()
     sort=SORT()
     
     print(c(wd,sort))
+    print(Sys.time())
     td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = 1000,include_rts = T)
     
     tds <-
@@ -180,21 +176,20 @@ server <- function(input, output) {
     TDPC <-
       TDPS %>%
       distinct(status_id,.keep_all = T) %>%
-      # mutate(Purl=factor(Purl,levels = unique(Purl))) %>%
       group_by(RID) %>%
       summarise(n=n(),nf=max(favorite_count),nr=max(retweet_count)) %>%
       ungroup() %>%
       mutate(Rank=frank(-n,ties.method = "max")) %>%
       arrange(Rank,desc(nf),desc(nr),RID) %>%
-      filter(nf>0 | nr>0) %>%
+      left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
       # mutate(Purl=as.character(Purl)) %>%
       # mutate(Ps=ifelse(grepl("img/",Purl),regexpr("g/",Purl),regexpr("[ab]/",Purl))) %>%
       # mutate(Pl=nchar(Purl)) %>%
       # mutate(Pjpg=substr(Purl,Ps+2,Pl)) %>%
-      left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
+      filter(nf>0 | nr>0) %>%
       filter(!grepl("おは",text)) %>%
       filter(!grepl("^@",text)) %>%
-      mutate(JTime=as.POSIXct(JTime))
+      ungroup() 
     
     if(sort==1){
       TDPC0 <-
@@ -211,28 +206,28 @@ server <- function(input, output) {
         # filter(1:n()<=20)
     }
     
-    XY=data.frame(RID=unique(TDPC0$RID),sx=0,lx=0,sy=0,ly=0)
+    ID=unique(TDPC0$RID)
+    XY=data.frame(RID=ID,sx=0,lx=0,sy=0,ly=0)
     n=nrow(XY)
-    r=round(sqrt(n))
-    co=ceiling(n/r)
-    ro=r
+    ro=round(sqrt(n))
+    co=ceiling(n/ro)
+    r=ro
     p=ggplot() +
       scale_x_continuous(limits = c(0,co),expand = c(0,0)) +
-      scale_y_continuous(limits = c(0,r),expand = c(0,0)) +
+      scale_y_continuous(limits = c(0,ro),expand = c(0,0)) +
       theme(axis.title = element_blank()) +
-      theme(axis.text = element_blank()) +
+      theme(axis.text  = element_blank()) +
       theme(axis.ticks = element_blank())
     
-    ID=XY$RID
     id=ID[1]
     i=0
     for (id in ID) {
       i=i+1
-      XY[i,-1] = c(floor((i-1)/r),floor((i-1)/r)+1,ro,ro-1)
+      XY[i,-1] = c(floor((i-1)/ro),floor((i-1)/ro)+1,r,r-1)
       
-      JPG <-
+      (JPG <-
         try(image_scale(
-          image_read(TDPC$Purl[which(TDPC$RID==id)])))
+          image_read(TDPC$Purl[which(TDPC$RID==id)]), geometry = 960)))
       if(sum(class(JPG)=="try-error"))
         next
       
@@ -252,9 +247,9 @@ server <- function(input, output) {
         p +
         annotation_raster(GIF,XY$sx[i],XY$lx[i],XY$sy[i],XY$ly[i])
       # plot(p)
-      ro=ro-1
-      if(ro==0)
-        ro=r
+      r=r-1
+      if(r==0)
+        r=ro
     }
     
     output$RTweet <- renderPlot({
@@ -270,7 +265,7 @@ server <- function(input, output) {
       if(!is.null(input$plot_hover)){
         hover=input$plot_hover
         hover$x=hover$x*co
-        hover$y=hover$y*r
+        hover$y=hover$y*ro
         w=which(hover$x>XY$sx&hover$x<XY$lx&hover$y<XY$sy&hover$y>XY$ly)
         paste(TDPCS$RTime[w],paste0(TDPCS$n[w],"ツイート"),paste0(TDPCS$nf[w],"いいね"),TDPCS$text[w])
       }
