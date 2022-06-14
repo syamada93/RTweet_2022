@@ -182,10 +182,6 @@ server <- function(input, output) {
       mutate(Rank=frank(-n,ties.method = "max")) %>%
       arrange(Rank,desc(nf),desc(nr),RID) %>%
       left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
-      # mutate(Purl=as.character(Purl)) %>%
-      # mutate(Ps=ifelse(grepl("img/",Purl),regexpr("g/",Purl),regexpr("[ab]/",Purl))) %>%
-      # mutate(Pl=nchar(Purl)) %>%
-      # mutate(Pjpg=substr(Purl,Ps+2,Pl)) %>%
       filter(nf>0 | nr>0) %>%
       filter(!grepl("おは",text)) %>%
       filter(!grepl("^@",text)) %>%
@@ -203,7 +199,6 @@ server <- function(input, output) {
         TDPC %>%
         arrange(desc(RTime)) %>%
         filter(RID %in% unique(RID)[1:20])
-        # filter(1:n()<=20)
     }
     
     ID=unique(TDPC0$RID)
