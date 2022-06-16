@@ -49,11 +49,17 @@ ui <- fluidPage(
     sidebarPanel(
       h4(strong(column(1,"検索ワード"))),
       h4(column(2,
-             textInput(inputId = "wd",
+                textInput(inputId = "wd",
                           label = NULL,
                           value = "大雨"))),
-      # column(1,h4("画像順序"),
-      #        offset = 1),
+      h4(strong(column(1,"ツイート数"))),
+      h4(column(2,
+                numericInput(inputId = "num",
+                             label = NULL,
+                             value = 100,
+                             min = 10,
+                             max = 1000,
+                             step = 10))),
       h4(column(2,
                 radioButtons(inputId = "sort",
                              label = "画像順序",
@@ -92,25 +98,43 @@ server <- function(input, output) {
   WD <- eventReactive(input$button,{
     return(input$wd)
   })
-
+  
   SORT <- eventReactive(input$button,{
     return(input$sort)
   })
   
+  NUM <- eventReactive(input$button,{
+    return(input$num)
+  })
+  
   wd="大雨"
   sort=2
+  num=10
   
   observe({
     refreshPlot0()
     wd=WD()
     sort=SORT()
+    num=NUM()
     
     print(c(wd,sort))
-    print(Sys.time())
-    td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = 1000,include_rts = T)
+    tm=Sys.time()
+    print(tm)
+    td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = num,include_rts = T)
+    
+    # rID=sort(td$retweet_status_id[!td$retweet_status_id %in% td$status_id])
+    # if(length(rID)>0){
+    #   for (id in rID) {
+    #     td0 <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = 1,include_rts = T,max_id = id)
+    #     td <-
+    #       td %>%
+    #       rbind(td0)
+    #   }
+    # }
     
     tds <-
       td %>%
+      distinct(status_id,.keep_all = T) %>%
       arrange(desc(status_id)) %>%
       mutate(JTime=as.POSIXct(format(created_at, tz="Japan"))) %>%
       mutate(YMD_HM=format(JTime,"%Y%m%d_%H%M")) %>%
@@ -179,6 +203,7 @@ server <- function(input, output) {
       group_by(RID) %>%
       summarise(n=n(),nf=max(favorite_count),nr=max(retweet_count)) %>%
       ungroup() %>%
+      mutate(n=ifelse(RID %in% rID,n-1,n)) %>%
       left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
       filter(nf>0 | nr>0) %>%
       filter(!grepl("おは",text)) %>%
@@ -191,7 +216,7 @@ server <- function(input, output) {
       TDPC0 <-
         TDPC %>%
         arrange(Rank) %>%
-        filter(Rank<=20)
+        filter(Rank<=20|n==max(n))
     }
     
     if(sort==2){
@@ -202,6 +227,7 @@ server <- function(input, output) {
     }
     
     ID=unique(TDPC0$RID)
+    ID=ID[1:min(20,length(ID))]
     XY=data.frame(RID=ID,sx=0,lx=0,sy=0,ly=0)
     n=nrow(XY)
     ro=round(sqrt(n))
@@ -220,8 +246,8 @@ server <- function(input, output) {
       XY[i,-1] = c(floor((i-1)/ro),floor((i-1)/ro)+1,r,r-1)
       
       (JPG <-
-        try(image_scale(
-          image_read(TDPC$Purl[which(TDPC$RID==id)]), geometry = 960)))
+          try(image_scale(
+            image_read(TDPC$Purl[which(TDPC$RID==id)]), geometry = 960)))
       if(sum(class(JPG)=="try-error"))
         next
       
@@ -264,6 +290,8 @@ server <- function(input, output) {
         paste(TDPCS$RTime[w],paste0(TDPCS$n[w],"ツイート"),paste0(TDPCS$nf[w],"いいね"),TDPCS$text[w])
       }
     })
+    print(Sys.time())
+    print(Sys.time()-tm)
   })
 }
 
