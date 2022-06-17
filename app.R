@@ -120,9 +120,9 @@ server <- function(input, output) {
     print(c(wd,sort))
     tm=Sys.time()
     print(tm)
-    td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = num,include_rts = T)
+    td <- search_tweets(paste(wd,"filter:media","filter:videos"),lang = "ja",n = num,include_rts = T)
     
-    if(num<=500){
+    if(num<=200){
     rID=unique(sort(td$retweet_status_id[!td$retweet_status_id %in% td$status_id]))
     if(length(rID)>0){
       for (id in rID) {
@@ -206,7 +206,7 @@ server <- function(input, output) {
       summarise(n=n(),nf=max(favorite_count),nr=max(retweet_count)) %>%
       ungroup() %>%
       # mutate(n=ifelse(RID %in% rID,n-1,n)) %>%
-      left_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
+      inner_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
       filter(nf>0 | nr>0) %>%
       filter(!grepl("おは",text)) %>%
       filter(!grepl("^@",text)) %>%
