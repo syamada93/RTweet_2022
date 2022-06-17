@@ -59,7 +59,7 @@ ui <- fluidPage(
                              value = 500,
                              min = 10,
                              max = 1000,
-                             step = 10))),
+                             step = 100))),
       h4(column(2,
                 radioButtons(inputId = "sort",
                              label = "画像順序",
