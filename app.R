@@ -56,7 +56,7 @@ ui <- fluidPage(
       h4(column(2,
                 numericInput(inputId = "num",
                              label = NULL,
-                             value = 100,
+                             value = 500,
                              min = 10,
                              max = 1000,
                              step = 10))),
@@ -122,15 +122,15 @@ server <- function(input, output) {
     print(tm)
     td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = num,include_rts = T)
     
-    rID=unique(sort(td$retweet_status_id[!td$retweet_status_id %in% td$status_id]))
-    if(length(rID)>0){
-      for (id in rID) {
-        td0 <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = 1,include_rts = T,max_id = id)
-        td <-
-          td %>%
-          rbind(td0)
-      }
-    }
+    # rID=unique(sort(td$retweet_status_id[!td$retweet_status_id %in% td$status_id]))
+    # if(length(rID)>0){
+    #   for (id in rID) {
+    #     td0 <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = 1,include_rts = T,max_id = id)
+    #     td <-
+    #       td %>%
+    #       rbind(td0)
+    #   }
+    # }
     
     tds <-
       td %>%
