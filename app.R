@@ -67,6 +67,10 @@ ui <- fluidPage(
                              selected = 1,
                              inline = T))),
       h4(column(2,
+                checkboxInput(inputId = "re",
+                              label = "リツイートの収集",
+                              value = T))),
+      h4(column(2,
                 actionButton(inputId = "button",
                              label = "ツイートの抽出開始&更新"))),
       br(),
@@ -107,42 +111,31 @@ server <- function(input, output) {
     return(input$num)
   })
   
+  RE <- eventReactive(input$button,{
+    return(input$re)
+  })
+  
   wd="大雨"
   sort=2
   num=200
+  re=F
   
   observe({
     refreshPlot0()
     wd=WD()
     sort=SORT()
     num=NUM()
+    re=RE()
     
     print(c(wd,sort))
     tm=Sys.time()
     print(tm)
-    td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = num,include_rts = T)
     
-    # if(num<=200){
+    if(re)
+      td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = num,include_rts = T)
     
-    # rID=unique(sort(td$retweet_status_id[!td$retweet_status_id %in% td$status_id]))
-    # if(length(rID)>0){
-    #   for (id in rID) {
-    #     td0 <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = 1,include_rts = T,max_id = id)
-    #     td <-
-    #       td %>%
-    #       rbind(td0)
-    #   }
-    # }# rID=unique(sort(td$retweet_status_id[!td$retweet_status_id %in% td$status_id]))
-    # if(length(rID)>0){
-    #   for (id in rID) {
-    #     td0 <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = 1,include_rts = T,max_id = id)
-    #     td <-
-    #       td %>%
-    #       rbind(td0)
-    #   }
-    # }
-    
-    # }
+    if(!re)
+      td <- search_tweets(paste(wd,"filter:media","exclude:retweets"),lang = "ja",n = num,include_rts = T)
     
     tds <-
       td %>%
@@ -157,7 +150,7 @@ server <- function(input, output) {
     TDC <-
       tds %>%
       count(YMD_HM,RT) %>%
-      filter(YMD_HM<max(YMD_HM))
+      filter(YMD_HM<=max(YMD_HM))
     
     print(head(TDC %>% arrange(desc(YMD_HM))))
     
