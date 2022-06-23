@@ -194,8 +194,8 @@ server <- function(input, output) {
     TDPS <- 
       TDP %>%
       cbind(PD) %>%
-      mutate(RID=ifelse(retweet_status_id==""|is.na(retweet_status_id),ifelse(quoted_status_id==""|is.na(quoted_status_id),status_id,quoted_status_id),retweet_status_id)) %>%
-      mutate(RTime=ifelse(retweet_status_id==""|is.na(retweet_status_id),ifelse(quoted_status_id==""|is.na(quoted_status_id),created_at,quoted_created_at),retweet_created_at)) %>%
+      mutate(RID=ifelse(retweet_status_id==""|is.na(retweet_status_id),status_id,retweet_status_id)) %>%
+      mutate(RTime=ifelse(status_id==RID,created_at,retweet_created_at)) %>%
       mutate(RTime=as.POSIXct(RTime,origin="1970-01-01")) %>%
       select(status_id,screen_name,JTime,RID,RTime,text,favorite_count,retweet_count,starts_with("Photo")) %>%
       gather(PNo,Purl,starts_with("Photo")) %>%
