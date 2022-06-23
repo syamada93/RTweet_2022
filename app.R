@@ -42,7 +42,7 @@ Unzip <- function(...) rbind(data.frame(), ...)
 #UI####
 ui <- fluidPage(
   # Application title
-  titlePanel("検索ワードによる画像付きツイートの抽出"),
+  titlePanel(h4(strong("検索ワードによる画像付きツイートの抽出"))),
   
   # Sidebar with a slider input for number of bins 
   fluidRow(
@@ -81,7 +81,7 @@ ui <- fluidPage(
     # Show a plot of the generated distribution
     
     mainPanel(
-      dygraphOutput("Hdy",height="110px"),
+      dygraphOutput("Hdy",height="100px"),
       plotOutput("RTweet",height = "100%",width = "100%",hover = hoverOpts(id ="plot_hover")),
       verbatimTextOutput("info"),
       width = 12
