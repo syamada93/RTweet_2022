@@ -132,10 +132,10 @@ server <- function(input, output) {
     print(tm)
     
     if(sort==1)
-      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube"),lang = "ja",n = num,include_rts = T)
+      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube -おは"),lang = "ja",n = num,include_rts = T)
     
     if(sort==2)
-      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube"),lang = "ja",n = num,include_rts = F)
+      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube -おは"),lang = "ja",n = num,include_rts = F)
     
     tds <-
       td %>%
@@ -144,7 +144,7 @@ server <- function(input, output) {
       mutate(JTime=as.POSIXct(format(created_at, tz="Japan"))) %>%
       mutate(YMD_HM=format(JTime,"%Y%m%d_%H%M")) %>%
       mutate(YMD_HM=ymd_hm(YMD_HM)) %>%
-      mutate(RT=is_quote|is_retweet) %>%
+      mutate(RT=is_retweet) %>%
       ungroup()
     
     TDC <-
