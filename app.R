@@ -63,13 +63,13 @@ ui <- fluidPage(
       h4(column(2,
                 radioButtons(inputId = "sort",
                              label = "画像順序",
-                             choices = c("出現頻度"=1,"最新投稿"=2),
+                             choices = c("出現頻度"=1,"最新投稿(リツイートなし)"=2),
                              selected = 1,
                              inline = T))),
-      h4(column(2,
-                checkboxInput(inputId = "re",
-                              label = "リツイートの収集",
-                              value = T))),
+      # h4(column(2,
+      #           checkboxInput(inputId = "re",
+      #                         label = "リツイートの収集",
+      #                         value = T))),
       h4(column(2,
                 actionButton(inputId = "button",
                              label = "ツイートの抽出開始&更新"))),
@@ -111,31 +111,31 @@ server <- function(input, output) {
     return(input$num)
   })
   
-  RE <- eventReactive(input$button,{
-    return(input$re)
-  })
+  # RE <- eventReactive(input$button,{
+  #   return(input$re)
+  # })
   
   wd="大雨"
   sort=2
   num=200
-  re=F
+  # re=F
   
   observe({
     refreshPlot0()
     wd=WD()
     sort=SORT()
     num=NUM()
-    re=RE()
+    # re=RE()
     
     print(c(wd,sort))
     tm=Sys.time()
     print(tm)
     
-    if(re)
-      td <- search_tweets(paste(wd,"filter:media"),lang = "ja",n = num,include_rts = T)
+    if(sort==1)
+      td <- search_tweets(paste(wd,"filter:media","exclude:replies"),lang = "ja",n = num,include_rts = T)
     
-    if(!re)
-      td <- search_tweets(paste(wd,"filter:media","exclude:retweets"),lang = "ja",n = num,include_rts = T)
+    if(sort==2)
+      td <- search_tweets(paste(wd,"filter:media","exclude:replies"),lang = "ja",n = num,include_rts = F)
     
     tds <-
       td %>%
