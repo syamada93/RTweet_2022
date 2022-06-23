@@ -132,10 +132,10 @@ server <- function(input, output) {
     print(tm)
     
     if(sort==1)
-      td <- search_tweets(paste(wd,"filter:media","exclude:replies"),lang = "ja",n = num,include_rts = T)
+      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube"),lang = "ja",n = num,include_rts = T)
     
     if(sort==2)
-      td <- search_tweets(paste(wd,"filter:media","exclude:replies"),lang = "ja",n = num,include_rts = F)
+      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube"),lang = "ja",n = num,include_rts = F)
     
     tds <-
       td %>%
@@ -211,8 +211,8 @@ server <- function(input, output) {
       # mutate(n=ifelse(RID %in% rID,n-1,n)) %>%
       inner_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
       filter(nf>0 | nr>0) %>%
-      filter(!grepl("おは",text)) %>%
-      filter(!grepl("^@",text)) %>%
+      # filter(!grepl("おは",text)) %>%
+      # filter(!grepl("^@",text)) %>%
       mutate(Rank=frank(-n,ties.method = "max")) %>%
       arrange(Rank,desc(nf),desc(nr),RID) %>%
       ungroup() 
