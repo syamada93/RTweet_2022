@@ -38,6 +38,9 @@ if(!require(magick)){
 }
 
 Unzip <- function(...) rbind(data.frame(), ...)
+Gyosei <- fread("Gyosei.csv")
+gs1=paste(Gyosei$Name[1:2000],collapse = "|")
+gs2=paste(Gyosei$Name[2001:nrow(Gyosei)],collapse = "|")
 
 #UI####
 ui <- fluidPage(
@@ -117,7 +120,7 @@ server <- function(input, output) {
   
   wd=""
   sort=2
-  num=10
+  num=1000
   # re=F
   
   observe({
@@ -139,6 +142,9 @@ server <- function(input, output) {
     
     tds <-
       td %>%
+      filter(grepl(gs1,text)) %>%
+      rbind(td %>%
+               filter(grepl(gs2,text))) %>%
       distinct(status_id,.keep_all = T) %>%
       arrange(desc(status_id)) %>%
       mutate(JTime=as.POSIXct(format(created_at, tz="Japan"))) %>%
@@ -208,7 +214,6 @@ server <- function(input, output) {
       group_by(RID) %>%
       summarise(n=n(),nf=max(favorite_count),nr=max(retweet_count)) %>%
       ungroup() %>%
-      # mutate(n=ifelse(RID %in% rID,n-1,n)) %>%
       inner_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
       # filter(nf>0 | nr>0) %>%
       # filter(!grepl("おは",text)) %>%
