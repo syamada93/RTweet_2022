@@ -115,9 +115,9 @@ server <- function(input, output) {
   #   return(input$re)
   # })
   
-  wd="大雨"
+  wd=""
   sort=2
-  num=200
+  num=10
   # re=F
   
   observe({
@@ -210,11 +210,11 @@ server <- function(input, output) {
       ungroup() %>%
       # mutate(n=ifelse(RID %in% rID,n-1,n)) %>%
       inner_join(TDPS %>% distinct(Purl,.keep_all=T) %>% select(RID,Purl,text,JTime,RTime)) %>%
-      filter(nf>0 | nr>0) %>%
-      filter(!grepl("おは",text)) %>%
+      # filter(nf>0 | nr>0) %>%
+      # filter(!grepl("おは",text)) %>%
       # filter(!grepl("^@",text)) %>%
       mutate(Rank=frank(-n,ties.method = "max")) %>%
-      arrange(Rank,desc(nf),desc(nr),RID) %>%
+      arrange(desc(RTime),Rank,desc(nf),desc(nr),RID) %>%
       ungroup() 
     
     if(sort==1){
