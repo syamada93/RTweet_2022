@@ -118,7 +118,7 @@ server <- function(input, output) {
   #   return(input$re)
   # })
   
-  wd=""
+  wd="大雨"
   sort=2
   num=1000
   # re=F
@@ -151,7 +151,15 @@ server <- function(input, output) {
       mutate(YMD_HM=format(JTime,"%Y%m%d_%H%M")) %>%
       mutate(YMD_HM=ymd_hm(YMD_HM)) %>%
       mutate(RT=is_retweet) %>%
-      ungroup()
+      ungroup() %>%
+      mutate(kw=NA)
+    
+    # for (i in 1:nrow(Gyosei)) {
+    #   tds <-
+    #     tds %>%
+    #     mutate(kw=ifelse(grepl(Gyosei$Name[i],text),Gyosei$Name[i],kw))
+    #   print(Gyosei$Name[i])
+    # }
     
     TDC <-
       tds %>%
