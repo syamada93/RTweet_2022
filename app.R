@@ -172,6 +172,7 @@ server <- function(input, output) {
       Comp <- 
         data.frame(YMD_HM=rep(seq(min(TDC$YMD_HM,na.rm = T),max(TDC$YMD_HM,na.rm=T),60),each=2),
                    RT=c(F,T))
+   
       TDCS <-
         Comp %>%
         left_join(TDC) %>%
@@ -180,9 +181,9 @@ server <- function(input, output) {
         select(YMD_HM,RTs,n) %>%
         spread(RTs,n) %>%
         select(Retweet,Origin)
-      
+  
       rownames(TDCS) <- unique(Comp$YMD_HM)
-      
+
       dygraph(TDCS,main = paste0("ツイート数 1分ごとの推移 ",min(TDC$YMD_HM),"～",max(TDC$YMD_HM))) %>% #
         dyOptions(stackedGraph = T, drawPoints = T, pointSize = 1, strokeWidth = 2,fillAlpha = 0.5,colors = c("red","blue"),
                   axisLabelFontSize = 20,axisLabelWidth = 100,titleHeight = 30,labelsKMB = T) %>%
@@ -194,7 +195,7 @@ server <- function(input, output) {
     RTD <-
       tds %>%
       distinct(status_id,emu=ext_media_url)
-    
+
     TDP <-
       tds %>%
       left_join(RTD %>% rename(retweet_status_id=1)) %>%
@@ -203,8 +204,8 @@ server <- function(input, output) {
     
     PD <-
       do.call(Unzip, TDP$ext_media_url)
-    colnames(PD) = paste0("Photo",1:ncol(PD))
-    
+    colnames(PD) = paste0("Photo",1:ncol(PD))[1:ncol(PD)]
+   
     TDPS <- 
       TDP %>%
       cbind(PD) %>%
@@ -236,14 +237,14 @@ server <- function(input, output) {
         arrange(Rank) %>%
         filter(Rank<=20|n==max(n))
     }
-    
+ 
     if(sort==2){
       TDPC0 <-
         TDPC %>%
         arrange(desc(RTime)) %>%
         filter(RID %in% unique(RID)[1:20])
     }
-    
+
     ID=unique(TDPC0$RID)
     ID=ID[1:min(20,length(ID))]
     XY=data.frame(RID=ID,sx=0,lx=0,sy=0,ly=0)
@@ -257,20 +258,21 @@ server <- function(input, output) {
       theme(axis.title = element_blank()) +
       theme(axis.text  = element_blank()) +
       theme(axis.ticks = element_blank())
-    
+   
     i=1
     for (i in 1:n) {
       id=ID[i]
       XY[i,-1] = c(floor((i-1)/ro),floor((i-1)/ro)+1,r,r-1)
       
-      (JPG <-
+      JPG <-
           try(image_scale(
-            image_read(TDPC$Purl[which(TDPC$RID==id)]), geometry = 960)))
+            image_read(TDPC$Purl[which(TDPC$RID==id)]), geometry = 960))
       if(sum(class(JPG)=="try-error"))
         next
       
       GIF <-
         image_append(JPG, stack = F)
+   
       if(length(JPG)>2){
         GIF12 <-
           image_append(JPG[1:2], stack = T)
@@ -279,7 +281,6 @@ server <- function(input, output) {
         GIF <-
           image_append(image_scale(c(GIF12,GIF34)), stack = F)
       }
-      
       
       p <-
         p +
