@@ -101,7 +101,7 @@ ui <- fluidPage(
 
 #SERVER####
 server <- function(input, output) {
-  refreshPlot0 <- reactiveTimer(intervalMs = 60000)
+  refreshPlot0 <- reactiveTimer(intervalMs = 60000*5)
   
   WD <- eventReactive(input$button,{
     return(input$wd)
