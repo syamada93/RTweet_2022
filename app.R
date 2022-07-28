@@ -17,6 +17,7 @@ if(!require(stringi)){
   library(stringi)
 }
 if(!require(rtweet)){
+  install.packages("rtweet")
   install.packages('https://cran.r-project.org/src/contrib/Archive/rtweet/rtweet_0.7.0.tar.gz', repos=NULL, type='source')
   library(rtweet)
 }
