@@ -67,7 +67,7 @@ ui <- fluidPage(
       h4(column(3,
                 radioButtons(inputId = "sort",
                              label = "画像順序",
-                             choices = c("出現頻度"=1,"最新投稿(リツイートなし)"=2),
+                             choices = c("出現頻度"=1,"最新投稿（オリジナルツイート）"=2),
                              selected = 1,
                              inline = T))),
       # h4(column(2,
@@ -235,15 +235,15 @@ server <- function(input, output) {
     if(sort==1){
       TDPC0 <-
         TDPC %>%
-        arrange(Rank) %>%
-        filter(Rank<=20|n==max(n))
+        arrange(Rank,desc(nf),desc(nr),RID,desc(RTime)) %>%
+        filter(RID %in% unique(RID)[1:16])
     }
  
     if(sort==2){
       TDPC0 <-
         TDPC %>%
         arrange(desc(RTime)) %>%
-        filter(RID %in% unique(RID)[1:20])
+        filter(RID %in% unique(RID)[1:16])
     }
 
     ID=unique(TDPC0$RID)
