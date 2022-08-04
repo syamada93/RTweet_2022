@@ -119,7 +119,7 @@ server <- function(input, output) {
   #   return(input$re)
   # })
   
-  wd="大雨"
+  wd=""
   sort=2
   num=1000
   # re=F
@@ -171,7 +171,7 @@ server <- function(input, output) {
     
     output$Hdy <- renderDygraph({
       Comp <- 
-        data.frame(YMD_HM=rep(seq(min(TDC$YMD_HM,na.rm = T),max(TDC$YMD_HM,na.rm=T),60),each=2),
+        data.frame(YMD_HM=rep(seq(min(TDC$YMD_HM,na.rm = T)-60,max(TDC$YMD_HM,na.rm=T)+60,60),each=2),
                    RT=c(F,T))
    
       TDCS <-
@@ -188,8 +188,8 @@ server <- function(input, output) {
       dygraph(TDCS,main = paste0("ツイート数 1分ごとの推移 ",min(TDC$YMD_HM),"～",max(TDC$YMD_HM))) %>% #
         dyOptions(stackedGraph = T, drawPoints = T, pointSize = 1, strokeWidth = 2,fillAlpha = 0.5,colors = c("red","blue"),
                   axisLabelFontSize = 20,axisLabelWidth = 100,titleHeight = 30,labelsKMB = T) %>%
-        dyRangeSelector(height = 10,keepMouseZoom = T,
-                        dateWindow = c(min(TDC$YMD_HM)-9*60*60-60,max(TDC$YMD_HM)-9*60*60+60)) %>%
+        # dyRangeSelector(height = 10,keepMouseZoom = T,
+        #                 dateWindow = c(min(TDC$YMD_HM)-9*60*60-60,max(TDC$YMD_HM)-9*60*60+60)) %>%
         dyLegend(width = 150)
     })
     
