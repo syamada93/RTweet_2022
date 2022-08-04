@@ -189,7 +189,7 @@ server <- function(input, output) {
         dyOptions(stackedGraph = T, drawPoints = T, pointSize = 1, strokeWidth = 2,fillAlpha = 0.5,colors = c("red","blue"),
                   axisLabelFontSize = 20,axisLabelWidth = 100,titleHeight = 30,labelsKMB = T) %>%
         dyRangeSelector(height = 10,keepMouseZoom = T,
-                        dateWindow = c(min(min(TDC$YMD_HM),max(TDC$YMD_HM)-10*60)-9*60*60,max(TDC$YMD_HM)-9*60*60)) %>%
+                        dateWindow = c(min(min(TDC$YMD_HM))-9*60*60,max(TDC$YMD_HM)-9*60*60)) %>%
         dyLegend(width = 150)
     })
     
