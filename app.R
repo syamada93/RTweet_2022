@@ -236,14 +236,14 @@ server <- function(input, output) {
       TDPC0 <-
         TDPC %>%
         arrange(Rank,desc(nf),desc(nr),RID,desc(RTime)) %>%
-        filter(RID %in% unique(RID)[1:16])
+        filter(RID %in% unique(RID))
     }
  
     if(sort==2){
       TDPC0 <-
         TDPC %>%
         arrange(desc(RTime)) %>%
-        filter(RID %in% unique(RID)[1:16])
+        filter(RID %in% unique(RID))
     }
 
     ID=unique(TDPC0$RID)
