@@ -119,7 +119,7 @@ server <- function(input, output) {
   #   return(input$re)
   # })
   
-  wd=""
+  wd="コロナ　株"
   sort=2
   num=1000
   # re=F
@@ -135,11 +135,14 @@ server <- function(input, output) {
     tm=Sys.time()
     print(tm)
     
-    if(sort==1)
-      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube","-出勤"),lang = "ja",n = num,include_rts = T)
+    td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube","-出勤"),lang = "ja",n = num,include_rts = T) %>%
+      rbind(search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube","-出勤"),lang = "ja",n = num,include_rts = F))
     
-    if(sort==2)
-      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube","-出勤"),lang = "ja",n = num,include_rts = F)
+    # if(sort==1)
+    #   td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube","-出勤"),lang = "ja",n = num,include_rts = T)
+    # 
+    # if(sort==2)
+    #   td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube","-出勤"),lang = "ja",n = num,include_rts = F)
     
     tds <-
       td %>%
@@ -167,6 +170,11 @@ server <- function(input, output) {
       count(YMD_HM,RT) %>%
       filter(YMD_HM<=max(YMD_HM))
     
+    if(sort==2)
+      TDC <-
+      TDC %>%
+      filter(!RT)
+    
     print(head(TDC %>% arrange(desc(YMD_HM))))
     
     output$Hdy <- renderDygraph({
@@ -182,6 +190,8 @@ server <- function(input, output) {
         select(YMD_HM,RTs,n) %>%
         spread(RTs,n) %>%
         select(Retweet,Origin)
+      
+    
   
       rownames(TDCS) <- unique(Comp$YMD_HM)
 
@@ -236,14 +246,14 @@ server <- function(input, output) {
       TDPC0 <-
         TDPC %>%
         arrange(Rank,desc(nf),desc(nr),RID,desc(RTime)) %>%
-        filter(RID %in% unique(RID)[1:16])
+        filter(RID %in% unique(RID))
     }
  
     if(sort==2){
       TDPC0 <-
         TDPC %>%
         arrange(desc(RTime)) %>%
-        filter(RID %in% unique(RID)[1:16])
+        filter(RID %in% unique(RID))
     }
 
     ID=unique(TDPC0$RID)
