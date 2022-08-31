@@ -136,10 +136,10 @@ server <- function(input, output) {
     print(tm)
     
     if(sort==1)
-      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube"),lang = "ja",n = num,include_rts = T)
+      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube","-出勤"),lang = "ja",n = num,include_rts = T)
     
     if(sort==2)
-      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube"),lang = "ja",n = num,include_rts = F)
+      td <- search_tweets(paste(wd,"filter:media","exclude:replies","-@youtube","-出勤"),lang = "ja",n = num,include_rts = F)
     
     tds <-
       td %>%
